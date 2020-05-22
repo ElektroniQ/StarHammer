@@ -1,0 +1,26 @@
+package Starhammer;
+
+import java.awt.Canvas;
+import java.awt.Dimension;
+import javax.swing.JFrame;
+
+public class Window extends Canvas{
+
+	private static final long serialVersionUID = -6646052540141956460L;
+	
+	public Window(int width, int height, String title, Starhammer starhammer) {
+		JFrame frame = new JFrame(title);
+		
+		frame.setPreferredSize(new Dimension(width, height));
+		frame.setMaximumSize(new Dimension(width, height));
+		frame.setMinimumSize(new Dimension(width, height));
+		
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setResizable(false);
+		frame.setLocationRelativeTo(null);
+		frame.add(starhammer);
+		frame.setVisible(true);
+		starhammer.start();
+	}
+
+}
