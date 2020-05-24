@@ -10,8 +10,8 @@ public class Camera {
 	}
 
 	public void tick() {
-		x = Starhammer.boarder( x, 0, Starhammer.trueWIDTH - 64 );
-		y = Starhammer.boarder( y, 0, Starhammer.trueHEIGHT - 64 );
+		x = Starhammer.boarder( x, -2020, 100 ); //mapa 3200x3200 nie pytajcie dlaczego
+		y = Starhammer.boarder( y, -2580, 100 ); //Starhammer.height - Starhammer.mapRes;
 	}
 	
 	public int getX() {

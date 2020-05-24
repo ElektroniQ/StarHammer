@@ -3,11 +3,9 @@ package Objects;
 public enum ID {
 
 	Player(),
+	Terrain(),
 	Camera(),
-	ClickField(),
 	Enemy(),
-	Marine(),
-	Terrain();
-	
+	Marine();	
 	
 }

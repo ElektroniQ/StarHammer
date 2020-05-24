@@ -2,23 +2,23 @@ package Starhammer;
 
 import java.awt.event.MouseMotionListener;
 
-import Objects.GameObject;
-import Objects.ID;
 
 import java.awt.event.MouseEvent;
 import java.awt.Robot;
-import Objects.GameObject;
+
 
 public class MouseMotionInput implements MouseMotionListener {
 
-	Handler handler;
-	Camera  camera;
-	Robot robot;
+	private Handler handler;
+	private Camera  camera;
+	private Robot robot;
+	private ClickField clickField;
 	
-	public MouseMotionInput( Handler hand, Camera cam, Robot rob ) {
-		this.handler = hand;
+	public MouseMotionInput( Handler handl, Camera cam, Robot robot, ClickField clickF ) {
+		this.handler = handl;
 		this.camera = cam;
-		this.robot = rob;
+		this.robot = robot;
+		this.clickField = clickF;
 	}
 
 	@Override
@@ -26,13 +26,9 @@ public class MouseMotionInput implements MouseMotionListener {
 		int x = e.getX() - camera.getX();
 		int y = e.getY() - camera.getY();
 		
-		for( int i=0; i < handler.size(); ++i ) {
-			GameObject object = handler.get(i);
-			if( object.getID() == ID.ClickField && object.isClicked() ) {
-				object.setGoalX(x);
-				object.setGoalY(y);
-				object.setMoves( true );
-			}
+		if( clickField.isMouse1Pressed() ) {
+			clickField.setGoalX( x );
+			clickField.setGoalY( y );
 		}
 	}
 

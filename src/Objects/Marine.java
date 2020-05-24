@@ -2,7 +2,6 @@ package Objects;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Rectangle;
 
 import Starhammer.Handler;
 import Starhammer.Starhammer;
@@ -11,46 +10,69 @@ public class Marine extends GameObject{
 
 	Handler handler;
 	
-	public Marine(int x, int y, ID id, Handler handler) {
-		super(x, y, id);
+	public Marine(int x, int y, int team, Handler handler) {
+		super(x, y, team);
+		
+		this.id = ID.Marine;
 		this.handler = handler;
+		this.clickable = true;
+		this.lookingForEnemy = true;
+		
 		this.width = 64;
 		this.height = 64;
-		this.clickable = true;
+		this.hp = 150;
+		this.movementSpeed = 3;
+		this.attackRange = 192; //3*this
+		this.attackDMG = 30;
+		this.attackSpeed = 0.5f;
 	}
 	
 	@Override
 	public void tick() {
-		x += this.velX;
-		y += this.velY;
-		
-		x = Starhammer.boarder( x, 0, Starhammer.trueWIDTH - width );
-		y = Starhammer.boarder( y, 0, Starhammer.trueHEIGHT - height );
-		
-		for( int i=0; i < handler.size(); i++ ) { //collision start
-			GameObject temp = handler.get(i);
-			//TODO do poprawy
-			if( temp.getBounds().intersects( getBounds() ) && this!=temp )
-				if( temp.getID() == ID.Terrain || temp.getID() == ID.Marine )
-					if( temp.getX() < x )
-						if( temp.getBounds().intersectsLine(x, y+6, x, y+height-6) )  //this random number must be higher than maxspeed of unit
-							x = temp.getX() + temp.getWidth();
-						else if ( temp.getY() > y )
-							y = temp.getY() - height;
-						else
-							y = temp.getY() + temp.getHeight();
-					else
-						if( temp.getBounds().intersectsLine(x+width, y+6, x+width, y+height-6) )  //same here
-							x = temp.getX() - width;
-						else if ( temp.getY() > y )
-							y = temp.getY() - height;
-						else
-							y = temp.getY() + temp.getHeight(); //collision ends
-						
+		if( velX != 0 && velY != 0 ) {
+			x += Math.round(this.velX * 0.71);
+			y += Math.round(this.velY * 0.71);
 		}
+		else {
+			x += this.velX;
+			y += this.velY;
+		}
+		
+		x = Starhammer.boarder( x, 0, Starhammer.mapRes );
+		y = Starhammer.boarder( y, 0, Starhammer.mapRes );
+		
+		collision( handler );
+
+		if( lookingForEnemy ) {
+			lookForEnemy( handler );
+		}
+		
+		if( attacking ) {
+			if( checkIfInRange(target) ){ //niebezpieczenstwo NULLA
+				if( System.currentTimeMillis() - timeOfLastAttack > 1000*attackSpeed ) {
+					target.hp -= attackDMG;
+					timeOfLastAttack = System.currentTimeMillis();
+					System.out.println(target.hp);
+					if( target.hp <= 0) {
+						attacking = false;
+						lookingForEnemy = true;
+						handler.removeObject( target );
+					}
+						
+				}
+			}
+			else {
+				attacking = false;
+				lookingForEnemy = true;
+			}
+		}
+		
 		if( moves ) {
+			lookingForEnemy = false;
+			attacking = false;
 			checkIfCloseToDestination();
 		}
+			
 	}
 	
 	@Override
@@ -60,29 +82,13 @@ public class Marine extends GameObject{
 		if( clicked ) {
 			g.setColor(Color.green);
 			g.drawRect(x-1, y-1, width+1, height+1);
+			//g.setColor(Color.green);
+
+			g.fillRect(x+8, y+8, (width-16)*hp/150, 8); //hpbar
+			g.setColor(Color.red);
+			g.fillRect(x+width-8, y+8, ((width-16)*(hp-150)/150), 8);
 		}
 	}
-
-	@Override
-	public Rectangle getBounds() {
-		return new Rectangle( x, y, width, height );
-	}
 	
-	@Override
-	public void move( int goalxPassed, int goalyPassed ){
-		goalX = goalxPassed;
-		goalY = goalyPassed;
-		if( x+(width/2) < goalX ) 
-			velX = 4;
-		else 
-			velX = -4;
-		
-		if( y+(height/2) < goalY ) 
-			velY = 4;
-		else 
-			velY = -4;
-		
-		moves = true;
-	}
 
 }

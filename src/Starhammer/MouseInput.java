@@ -5,23 +5,24 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import Objects.GameObject;
-import Objects.ID;
+
 
 
 public class MouseInput implements MouseListener {
 
-	Handler handler;
-	Camera camera;
-	Robot robot;
+	private Handler handler;
+	private Camera camera;
+	private Robot robot;
+	private ClickField clickField;
 	
-	public MouseInput( Handler handl, Camera cam, Robot robot ) {
+	public MouseInput( Handler handl, Camera cam, Robot robot, ClickField clickF ) {
 		this.handler = handl;
 		this.camera = cam;
 		this.robot = robot;
+		this.clickField = clickF;
 	}
 	
 	public void mouseClicked(MouseEvent e) {
-		
 	}
 
 	@Override
@@ -30,21 +31,12 @@ public class MouseInput implements MouseListener {
 		int y = e.getY() - camera.getY(); 
 
 		if( e.getButton() == MouseEvent.BUTTON1 ) {
-			for( int i=0; i<handler.size(); ++i ) {
-				GameObject object = handler.get(i);
-					if( object.isClickable() )
-						if( object.getBounds().contains(x,y) )
-							object.setClicked( true );
-						else
-							object.setClicked( false );
-					if( object.getID() == ID.ClickField ) {
-						object.setX( x );
-						object.setY( y );
-						object.setGoalX(x);
-						object.setGoalY(y);
-						object.setClicked( true );
-					}
-			}
+			clickField.setX( x );
+			clickField.setY( y );
+			clickField.setGoalX( x+1 );
+			clickField.setGoalY( y+1 );
+			clickField.setClicked( true );
+			
 		}
 		else if( e.getButton() == MouseEvent.BUTTON3 ) {
 			for( int i=0; i<handler.size(); ++i ) {
@@ -58,26 +50,21 @@ public class MouseInput implements MouseListener {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		for( int i=0; i<handler.size(); ++i ) {
-			GameObject object = handler.get(i);
-			if( object.getID() == ID.ClickField && object.isMoves() ) {
-				for( int j=0; j<handler.size(); ++j ) {
-					GameObject tempObject = handler.get(j);
-					
-					if( tempObject.isClickable() && object.getBounds().intersects( tempObject.getBounds() ) && object != tempObject )
-						tempObject.setClicked( true );
-					else
-						tempObject.setClicked( false );
-					
-				}
-				
-				object.setX( 0 );
-				object.setY( 0 );
-				object.setGoalX(0);
-				object.setGoalY(0);
-				object.setClicked( false );
-				object.setMoves( false );
+		if( e.getButton() == MouseEvent.BUTTON1 ) {
+			for( int j=0; j<handler.size(); ++j ) {
+				GameObject tempObject = handler.get(j);
+						
+				if( tempObject.isClickable() && tempObject.getBounds().intersects( clickField.getBounds() ))
+					tempObject.setClicked( true );
+				else
+					tempObject.setClicked( false );
+						
 			}
+			clickField.setX( 0 );
+			clickField.setY( 0 );
+			clickField.setGoalX( 0 );
+			clickField.setGoalY( 0 );
+			clickField.setClicked( false );
 		}
 	}
 

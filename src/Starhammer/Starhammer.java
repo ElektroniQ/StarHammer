@@ -6,45 +6,49 @@ import java.awt.Graphics;
 import java.awt.Robot;
 import java.awt.image.BufferStrategy;
 
-import Objects.ClickField;
-import Objects.ID;
+
+import Objects.Map;
 import Objects.Marine;
-import Objects.Terrain;
+
 
 public class Starhammer extends Canvas implements Runnable{
 
 	private static final long serialVersionUID = -5671504739751849190L;
-	public static final int WIDTH = 640, HEIGHT = WIDTH * 9 / 16; //623 i 320
+	public static final int WIDTH = 1280, HEIGHT = WIDTH * 9 / 16; //623 i 320
 	public static final int trueWIDTH = WIDTH - 17, trueHEIGHT = HEIGHT - 40;
+	public static final int mapRes = 3200;
 	private Thread thread;
 	private boolean running = false;
 	private Handler handler;
-	Camera camera;
-	Robot robot;
+	private ClickField clickField;
+	private Camera camera;
+	private Robot robot;
+	private Map map;
 	
 	
 	public Starhammer() {
 		handler = new Handler();
 		camera = new Camera( 0, 0 );
+		clickField = new ClickField();
 		
 		try {
 		robot = new Robot();
 		}
 		catch( Throwable e ) { System.exit(1);}
 		
-		this.addMouseListener( new MouseInput( handler, camera, robot ) );
-		this.addMouseMotionListener( new MouseMotionInput( handler, camera, robot ) );
+		this.addMouseListener( new MouseInput( handler, camera, robot, clickField ) );
+		this.addMouseMotionListener( new MouseMotionInput( handler, camera, robot, clickField ) );
 		this.addKeyListener( new KeyInput( handler, camera ) );
 		
-		new Window(WIDTH, HEIGHT, "Lets do this", this);
+		new Window(WIDTH, HEIGHT, "Starhammer", this);
+		map = new Map( handler, "map.txt" );
 
-		handler.addObject( new ClickField( 50, 50, ID.ClickField ) );
-		handler.addObject( new Marine( 0, 0, ID.Marine, handler ) );
-		handler.addObject( new Marine( 200, 200, ID.Marine, handler ) );		
-		handler.addObject( new Terrain( 100, 100, ID.Terrain ));
-		handler.addObject( new Terrain( 132, 100, ID.Terrain ));
-		handler.addObject( new Terrain( 164, 100, ID.Terrain ));
-		handler.addObject( new Terrain( 196, 132, ID.Terrain ));
+		/*handler.addObject( new Marine( 0, 0, 1, handler ) );
+		handler.addObject( new Marine( 400, 400, 2, handler ) );	
+		handler.addObject( new Marine( 64, 0, 1, handler ) );
+		handler.addObject( new Marine( 500, 400, 2, handler ) );	
+		handler.addObject( new Marine( 128, 0, 1, handler ) );
+		handler.addObject( new Marine( 300, 400, 2, handler ) );*/	
 
 		this.requestFocusInWindow();
 	}
@@ -103,6 +107,7 @@ public class Starhammer extends Canvas implements Runnable{
 	public void tick() {
 		handler.tick();
 		camera.tick();
+
 	}
 	
 	public void render() {
@@ -118,6 +123,7 @@ public class Starhammer extends Canvas implements Runnable{
 		
 		g.translate( camera.getX(), camera.getY() );
 		handler.render(g);
+		clickField.render(g);
 		//g.translate( -camera.getX(), -camera.getY() );
 		
 		g.dispose();
