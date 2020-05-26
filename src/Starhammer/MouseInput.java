@@ -1,8 +1,10 @@
 package Starhammer;
 
+import java.awt.Point;
 import java.awt.Robot;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.LinkedList;
 
 import Objects.GameObject;
 
@@ -10,16 +12,18 @@ import Objects.GameObject;
 
 public class MouseInput implements MouseListener {
 
+	private Map map;
 	private Handler handler;
 	private Camera camera;
 	private Robot robot;
 	private ClickField clickField;
 	
-	public MouseInput( Handler handl, Camera cam, Robot robot, ClickField clickF ) {
+	public MouseInput( Handler handl, Camera cam, Robot robot, ClickField clickF, Map map ) {
 		this.handler = handl;
 		this.camera = cam;
 		this.robot = robot;
 		this.clickField = clickF;
+		this.map = map;
 	}
 	
 	public void mouseClicked(MouseEvent e) {
@@ -41,8 +45,18 @@ public class MouseInput implements MouseListener {
 		else if( e.getButton() == MouseEvent.BUTTON3 ) {
 			for( int i=0; i<handler.size(); ++i ) {
 				GameObject object = handler.get(i);
-				if( object.isClicked() )
-					object.move( x, y );
+				if( object.isClicked() ) {
+					//object.move( x, y );
+					LinkedList<MapVertex> path;
+					path = PathFinder.findPath(map, map.mapGrid[object.getY()/64][object.getX()/64], map.mapGrid[y/64][x/64]);
+					for(int j=0; j < path.size(); j++) {
+						System.out.println("x"+path.get(j).x+" "+"y" + path.get(j).y);
+					}
+					object.setPath( path );
+					object.setGoal( x, y );
+					object.move();
+
+				}
 			}
 		}
 		System.out.println("x"+x+" "+"y" + y);

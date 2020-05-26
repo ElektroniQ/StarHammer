@@ -1,9 +1,12 @@
 package Objects;
 
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.LinkedList;
 
 import Starhammer.Handler;
+import Starhammer.MapVertex;
 
 
 public abstract class GameObject {
@@ -13,7 +16,7 @@ public abstract class GameObject {
 	protected int width, height;
 	protected ID id;
     protected int velX, velY;
-    protected int goalX, goalY;
+    protected int goalX, goalY, goal2X, goal2Y;
     protected int hp;
 	protected int movementSpeed;
 	protected int attackRange , attackDMG;
@@ -21,11 +24,13 @@ public abstract class GameObject {
 	GameObject target;
 	protected int team;
 
+	protected LinkedList<MapVertex> path;
 	
   	protected boolean clickable, clicked;
 	protected boolean moves;
 	protected boolean lookingForEnemy;
 	protected boolean attacking;
+	private boolean lastMove;
 
 	long timeOfLastAttack;
 	
@@ -109,6 +114,13 @@ public abstract class GameObject {
 	public void setMoves(boolean moves) {
 		this.moves = moves;
 	}
+	public void setPath( LinkedList<MapVertex> passedPath ) {
+		this.path = passedPath;
+	}
+	public void setGoal( int x, int y ) {
+		this.goal2X = x;
+		this.goal2Y = y;
+	}
 
 	public Rectangle getBounds() {
 		return new Rectangle( x, y, width, height );
@@ -139,32 +151,52 @@ public abstract class GameObject {
 	}
 	
 	public void checkIfCloseToDestination(){
-		if( goalX - 8 < x+(width/2) && x+(width/2) < goalX + 8 )
-			velX = 0;
-		if( goalY - 8 < y+(height/2) && y+(height/2) < goalY + 8 )
+		if( goalX - 4 < x+(width/2) && x+(width/2) < goalX + 4 )
+			x+=4;
+
+		
+		if( goalY - 4 < y+(height/2) && y+(height/2) < goalY + 4 ) 
 			velY = 0;
 		
+		
 		if( velX == 0 && velY == 0 ) {
-			moves = false;
-			lookingForEnemy = true;
+			if( !lastMove ) {
+				move();
+			}
+			else {
+				moves = false;
+				lookingForEnemy = true;
+				lastMove = false;
+			}
 		}
+		
 	}
 	
+	public void move(){
+		if( !path.isEmpty() ) {
+			goalX = path.getFirst().x*64+32;
+			goalY = path.getFirst().y*64+32;
+	
+			path.removeFirst();
+		}
+		else {
+			lastMove = true;
+			goalX = goal2X;
+			goalY = goal2Y;
+		}
+			
+			if( x+(width/2) < goalX ) 
+				velX = movementSpeed;
+			else 
+				velX = -movementSpeed;
+			
+			if( y+(height/2) < goalY ) 
+				velY = movementSpeed;
+			else 
+				velY = -movementSpeed;
+			
+			moves = true;
 
-	public void move( int newGoalX, int newGoalY ){
-		goalX = newGoalX;
-		goalY = newGoalY;
-		if( x+(width/2) < goalX ) 
-			velX = movementSpeed;
-		else 
-			velX = -movementSpeed;
-		
-		if( y+(height/2) < goalY ) 
-			velY = movementSpeed;
-		else 
-			velY = -movementSpeed;
-		
-		moves = true;
 	}
 	
 	public void lookForEnemy( Handler handler ){ //znajdz najlbizszego wroga i wydaj komende ataku

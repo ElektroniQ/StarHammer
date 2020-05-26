@@ -6,8 +6,6 @@ import java.awt.Graphics;
 import java.awt.Robot;
 import java.awt.image.BufferStrategy;
 
-
-import Objects.Map;
 import Objects.Marine;
 
 
@@ -36,19 +34,21 @@ public class Starhammer extends Canvas implements Runnable{
 		}
 		catch( Throwable e ) { System.exit(1);}
 		
-		this.addMouseListener( new MouseInput( handler, camera, robot, clickField ) );
+		new Window(WIDTH, HEIGHT, "Starhammer", this);
+		map = new Map( handler, "map.txt" );
+		this.addMouseListener( new MouseInput( handler, camera, robot, clickField, map ) );
 		this.addMouseMotionListener( new MouseMotionInput( handler, camera, robot, clickField ) );
 		this.addKeyListener( new KeyInput( handler, camera ) );
 		
-		new Window(WIDTH, HEIGHT, "Starhammer", this);
-		map = new Map( handler, "map.txt" );
 
-		/*handler.addObject( new Marine( 0, 0, 1, handler ) );
+
+
+		//handler.addObject( new Marine( 0, 0, 1, handler ) );
 		handler.addObject( new Marine( 400, 400, 2, handler ) );	
-		handler.addObject( new Marine( 64, 0, 1, handler ) );
-		handler.addObject( new Marine( 500, 400, 2, handler ) );	
-		handler.addObject( new Marine( 128, 0, 1, handler ) );
-		handler.addObject( new Marine( 300, 400, 2, handler ) );*/	
+		//handler.addObject( new Marine( 64, 0, 1, handler ) );
+		//handler.addObject( new Marine( 500, 400, 2, handler ) );	
+		//handler.addObject( new Marine( 128, 0, 1, handler ) );
+		//handler.addObject( new Marine( 300, 400, 2, handler ) );
 
 		this.requestFocusInWindow();
 	}
