@@ -76,7 +76,7 @@ public class PathFinder  {
 	private static Vector<MapVertex> findNeighbours( Map map, MapVertex tmp, Vector<MapVertex> neighbours ){
 		
 		neighbours.clear();
-	   /*if (tmp.x - 1 >= 0 ) {
+	   if (tmp.x - 1 >= 0 ) {
 	        neighbours.add(map.mapGrid[tmp.y][tmp.x - 1]);
 	        if(tmp.y - 1 >= 0) {
 	        	neighbours.add(map.mapGrid[tmp.y - 1][tmp.x]);
@@ -98,9 +98,9 @@ public class PathFinder  {
 	    if( tmp.x - 1 >= 0 && tmp.y + 1 <= 50 )
 	    	neighbours.add(map.mapGrid[tmp.y + 1][tmp.x - 1]);
 	    if( tmp.y - 1 >= 0 && tmp.x + 1 <= 50 )
-	    	neighbours.add(map.mapGrid[tmp.y - 1][tmp.x + 1]);*/
+	    	neighbours.add(map.mapGrid[tmp.y - 1][tmp.x + 1]);
 		
-	    if (tmp.x - 1 >= 0 )
+	    /*if (tmp.x - 1 >= 0 )
 	    	neighbours.add(map.mapGrid[tmp.y][tmp.x - 1]);
 	    if (tmp.x + 1 <= 50)
 	    	neighbours.add(map.mapGrid[tmp.y][tmp.x + 1]);
@@ -115,7 +115,7 @@ public class PathFinder  {
 	    if( tmp.x - 1 >= 0 && tmp.y - 1 >= 0 )
 		    neighbours.add(map.mapGrid[tmp.y - 1][tmp.x - 1]);
 		if( tmp.y + 1 <= 50 && tmp.x + 1 <= 50 )
-		    neighbours.add(map.mapGrid[tmp.y + 1][tmp.x + 1]);
+		    neighbours.add(map.mapGrid[tmp.y + 1][tmp.x + 1]);*/
 	    	
 	    
 		return neighbours;
