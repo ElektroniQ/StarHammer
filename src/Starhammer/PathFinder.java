@@ -7,6 +7,7 @@ public class PathFinder  {
 	
 	//ACHTUNG pojawia sie problemy jezeli dostep bedzie tu mialo kilka watkow
 	//ACHTUNG 2 jesli pojawia sie problemy to znaczy ze trzeba wyzerowywac mape albo ja clonowac
+	//ACHTUNG 3 caly czas wystepuje mozliwosc  zle policzonej trasy jezeli mapa zle zbudowana
 	public static LinkedList<MapVertex> findPath( Map map, MapVertex start, MapVertex goal ) {
 		//Map map = (Map)passedMap.clone();
 
@@ -48,17 +49,22 @@ public class PathFinder  {
 				for( i=0; i < closedSet.size() && closedSet.get(i) != tempNeigh; ++i );
 				if( i == closedSet.size() ) {
 					int temp_g_score = tempVertex.g_score + tempNeigh.cost;
+					
 					if( tempNeigh.x != tempVertex.x && tempNeigh.y != tempVertex.y )
-						temp_g_score += 5;
+						temp_g_score += 8; //taka losowa liczba ale zwiazana jest ona z tym ze pola maja koszt 10
 					boolean is_better = false;
+					
 					for( j=0; j < openSet.size() && openSet.get(j) != tempNeigh; ++j );
+					
 					if( j == openSet.size() ) {
 						openSet.add( tempNeigh );
 						tempNeigh.h_score = Math.abs( goal.x - tempNeigh.x ) + Math.abs( goal.y - tempNeigh.y );
 						is_better = true;
 					}
+					
 					else if( temp_g_score < tempNeigh.g_score )
 						is_better = true;
+					
 					if( is_better ) {
 						tempNeigh.prev = tempVertex;
 						tempNeigh.g_score = temp_g_score;
@@ -86,18 +92,19 @@ public class PathFinder  {
 	    else if( tmp.y - 1 >= 0 )
 	    	neighbours.add(map.mapGrid[tmp.y - 1][tmp.x]);
 	    
-	    if( tmp.x + 1 <= 50) {
+	    if( tmp.x + 1 < 50) {
 	    	neighbours.add(map.mapGrid[tmp.y][tmp.x + 1]);
-	    	if (tmp.y + 1 <= 50)
+	    	if (tmp.y + 1 < 50) {
 	    		neighbours.add(map.mapGrid[tmp.y + 1][tmp.x]);
 	    		neighbours.add(map.mapGrid[tmp.y + 1][tmp.x + 1]);
+	    	}
 	    }
-	    else if( tmp.y + 1 <= 50 )
+	    else if( tmp.y + 1 < 50 )
 	    	neighbours.add(map.mapGrid[tmp.y + 1][tmp.x]);
 	    
-	    if( tmp.x - 1 >= 0 && tmp.y + 1 <= 50 )
+	    if( tmp.x - 1 >= 0 && tmp.y + 1 < 50 )
 	    	neighbours.add(map.mapGrid[tmp.y + 1][tmp.x - 1]);
-	    if( tmp.y - 1 >= 0 && tmp.x + 1 <= 50 )
+	    if( tmp.y - 1 >= 0 && tmp.x + 1 < 50 )
 	    	neighbours.add(map.mapGrid[tmp.y - 1][tmp.x + 1]);
 		
 	    /*if (tmp.x - 1 >= 0 )

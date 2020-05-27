@@ -9,6 +9,7 @@ import java.awt.Robot;
 
 public class MouseMotionInput implements MouseMotionListener {
 
+	@SuppressWarnings("unused")
 	private Handler handler;
 	private Camera  camera;
 	private Robot robot;

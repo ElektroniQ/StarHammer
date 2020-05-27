@@ -4,8 +4,10 @@ public enum ID {
 
 	Player(),
 	Terrain(),
+	Minerals(),
+	Building(),
 	Camera(),
-	Enemy(),
-	Marine();	
+	Marine(),
+	Worker()
 	
 }

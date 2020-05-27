@@ -10,6 +10,7 @@ public class KeyInput extends KeyAdapter {
 	
 	private Handler handler;
 	private Camera camera;
+	public static boolean aMove = false;
 	
 	public KeyInput( Handler handl, Camera cam ) {
 		this.handler = handl;
@@ -22,18 +23,19 @@ public class KeyInput extends KeyAdapter {
 		for( int i=0; i < handler.objectList.size(); ++i ) {
 			GameObject object = handler.objectList.get(i);
 
-			if( object.getID() == ID.Marine ) {
+			/*if( object.getID() == ID.Marine ) {
 				if( key == KeyEvent.VK_W ) object.setVelY(-4);
 				if( key == KeyEvent.VK_S ) object.setVelY(4);
 				if( key == KeyEvent.VK_A ) object.setVelX(-4);
 				if( key == KeyEvent.VK_D ) object.setVelX(4);
-			}
+			}*/
 			
 		}
 		
 		switch( key ) {
 		case KeyEvent.VK_ESCAPE:
-			System.exit(1);
+			if( Starhammer.gameState == State.Game) Starhammer.gameState = State.Paused;
+			else System.exit(1);
 			break;
 		case KeyEvent.VK_RIGHT:
 			camera.setX( camera.getX() - 8 );
@@ -46,6 +48,18 @@ public class KeyInput extends KeyAdapter {
 			break;
 		case KeyEvent.VK_DOWN:
 			camera.setY( camera.getY() - 8 );
+			break;
+		case KeyEvent.VK_A:
+			aMove = true;
+			break;
+		case KeyEvent.VK_E:
+			for( int i=0; i < handler.objectList.size(); ++i ) {
+				GameObject object = handler.objectList.get(i);
+				if( object.isClicked() && object.getID() == ID.Building ) {
+					object.setProduce(0); //produkuj robotnik
+					object.setTimeOfStart( System.currentTimeMillis() );
+				}
+			}
 			break;
 		}
 	}

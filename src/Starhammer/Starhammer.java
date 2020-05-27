@@ -6,7 +6,6 @@ import java.awt.Graphics;
 import java.awt.Robot;
 import java.awt.image.BufferStrategy;
 
-import Objects.Marine;
 
 
 public class Starhammer extends Canvas implements Runnable{
@@ -15,6 +14,7 @@ public class Starhammer extends Canvas implements Runnable{
 	public static final int WIDTH = 1280, HEIGHT = WIDTH * 9 / 16; //623 i 320
 	public static final int trueWIDTH = WIDTH - 17, trueHEIGHT = HEIGHT - 40;
 	public static final int mapRes = 3200;
+	protected static State gameState = State.Menu;
 	private Thread thread;
 	private boolean running = false;
 	private Handler handler;
@@ -22,6 +22,8 @@ public class Starhammer extends Canvas implements Runnable{
 	private Camera camera;
 	private Robot robot;
 	private Map map;
+	private Menu menu;
+	
 	
 	
 	public Starhammer() {
@@ -34,9 +36,11 @@ public class Starhammer extends Canvas implements Runnable{
 		}
 		catch( Throwable e ) { System.exit(1);}
 		
-		new Window(WIDTH, HEIGHT, "Starhammer", this);
 		map = new Map( handler, "map.txt" );
-		this.addMouseListener( new MouseInput( handler, camera, robot, clickField, map ) );
+		menu = new Menu( camera, handler, map );
+		new Window(WIDTH, HEIGHT, "Starhammer", this);
+
+		this.addMouseListener( new MouseInput( handler, camera, robot, clickField, map, menu ) );
 		this.addMouseMotionListener( new MouseMotionInput( handler, camera, robot, clickField ) );
 		this.addKeyListener( new KeyInput( handler, camera ) );
 		
@@ -44,11 +48,23 @@ public class Starhammer extends Canvas implements Runnable{
 
 
 		//handler.addObject( new Marine( 0, 0, 1, handler ) );
-		handler.addObject( new Marine( 400, 400, 2, handler ) );	
-		//handler.addObject( new Marine( 64, 0, 1, handler ) );
-		//handler.addObject( new Marine( 500, 400, 2, handler ) );	
-		//handler.addObject( new Marine( 128, 0, 1, handler ) );
-		//handler.addObject( new Marine( 300, 400, 2, handler ) );
+		//handler.addObject( new Marine( 400, 400, 1, handler ) );	
+		/*handler.addObject( new Marine( 64, 0, 1, handler ) );
+		handler.addObject( new Marine( 500, 400, 1, handler ) );	
+		handler.addObject( new Marine( 128, 0, 1, handler ) );
+		handler.addObject( new Marine( 300, 400, 1, handler ) );
+		handler.addObject( new Marine( 0, 0, 1, handler ) );
+		handler.addObject( new Marine( 400, 400, 1, handler ) );	
+		handler.addObject( new Marine( 64, 0, 1, handler ) );
+		handler.addObject( new Marine( 500, 400, 1, handler ) );	
+		handler.addObject( new Marine( 128, 0, 1, handler ) );
+		handler.addObject( new Marine( 300, 400, 1, handler ) );
+		handler.addObject( new Marine( 0, 0, 1, handler ) );
+		handler.addObject( new Marine( 400, 400, 1, handler ) );	
+		handler.addObject( new Marine( 64, 0, 1, handler ) );
+		handler.addObject( new Marine( 500, 400, 1, handler ) );	
+		handler.addObject( new Marine( 128, 0, 1, handler ) );
+		handler.addObject( new Marine( 1000, 1000, 2, handler ) );*/
 
 		this.requestFocusInWindow();
 	}
@@ -105,8 +121,10 @@ public class Starhammer extends Canvas implements Runnable{
 	}
 	
 	public void tick() {
-		handler.tick();
-		camera.tick();
+		if( gameState == State.Game ) {
+			handler.tick();
+			camera.tick();
+		}
 
 	}
 	
@@ -121,10 +139,31 @@ public class Starhammer extends Canvas implements Runnable{
 		g.setColor(Color.black);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		
-		g.translate( camera.getX(), camera.getY() );
-		handler.render(g);
-		clickField.render(g);
-		//g.translate( -camera.getX(), -camera.getY() );
+		switch (gameState){
+		case Game:
+			g.translate( camera.getX(), camera.getY() );
+			g.setColor(Color.orange);
+			g.fillRect(-50, -50, 50, 3300);
+			g.fillRect(3200, -50, 50, 3300);
+			g.fillRect(0, -50, 3200, 50);
+			g.fillRect(0, 3200, 3200, 50);
+			
+			handler.render(g);
+			clickField.render(g);
+			//g.translate( -camera.getX(), -camera.getY() );
+			break;
+			
+		case Menu:
+			menu.render(g);
+			break;
+		
+		case Paused:
+			g.translate( camera.getX(), camera.getY() );
+			handler.render(g);
+			clickField.render(g);
+			menu.render(g);
+			break;
+		}
 		
 		g.dispose();
 		bs.show();
@@ -141,9 +180,11 @@ public class Starhammer extends Canvas implements Runnable{
 		else
 			return var;
 	}
+
 	
 	public static void main(String args[]) {
 		new Starhammer();
 	}
+	
 	
 }

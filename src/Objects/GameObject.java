@@ -1,7 +1,6 @@
 package Objects;
 
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.LinkedList;
 
@@ -21,18 +20,26 @@ public abstract class GameObject {
 	protected int movementSpeed;
 	protected int attackRange , attackDMG;
 	protected float attackSpeed;
-	GameObject target;
 	protected int team;
+	private int lastPositionX, lastPositionY;
+	private int stuckCounter;
 
+	GameObject target;
 	protected LinkedList<MapVertex> path;
 	
+	protected boolean moveable;
   	protected boolean clickable, clicked;
 	protected boolean moves;
 	protected boolean lookingForEnemy;
 	protected boolean attacking;
+	protected boolean attackMove;
+	protected boolean working;
+	protected boolean[] produce;
 	private boolean lastMove;
 
+	long timeOfLastPosition;
 	long timeOfLastAttack;
+	long timeOfStart;
 	
 	public GameObject( int x, int y, int team ) {
 		this.x = x;
@@ -114,9 +121,31 @@ public abstract class GameObject {
 	public void setMoves(boolean moves) {
 		this.moves = moves;
 	}
+
+	public void setAttackMove(boolean attackMove) {
+		this.attackMove = attackMove;
+	}
+	
+	public boolean isMoveable() {
+		return this.moveable;
+	}
+	
+	public void setLookingForEnemy(boolean lookingForEnemy) {
+		this.lookingForEnemy = lookingForEnemy;
+	}
+	
+	public void setTimeOfStart( long time ) {
+		this.timeOfStart = time;
+	}
+
 	public void setPath( LinkedList<MapVertex> passedPath ) {
 		this.path = passedPath;
 	}
+	
+	public void setProduce( int product ) {
+		this.produce[product] = true;
+	}
+	
 	public void setGoal( int x, int y ) {
 		this.goal2X = x;
 		this.goal2Y = y;
@@ -129,9 +158,8 @@ public abstract class GameObject {
 	public void collision( Handler handler ) {
 		for( int i=0; i < handler.size(); i++ ) { //collision start
 			GameObject temp = handler.get(i);
-			//TODO do poprawy
 			if( temp.getBounds().intersects( getBounds() ) && this!=temp )
-				if( temp.getID() == ID.Terrain || temp.getID() == ID.Marine )
+				if( temp.getID() == ID.Terrain || temp.getID() == ID.Building ) { //|| temp.getID() == ID.Marine )
 					if( temp.getX() < x )
 						if( temp.getBounds().intersectsLine(x, y+movementSpeed+2, x, y+height-(movementSpeed+2)) )  //this "2" is just safety number
 							x = temp.getX() + temp.getWidth();
@@ -146,34 +174,93 @@ public abstract class GameObject {
 							y = temp.getY() - height;
 						else
 							y = temp.getY() + temp.getHeight(); //collision ends
+				}
+				else if( temp.getID() == ID.Marine || temp.getID() == ID.Worker ) {
+					//TODO do wyjebongowienia
+					if( temp.getX() < x )
+						if( temp.getBounds().intersectsLine(x, y+movementSpeed+20, x, y+height-(movementSpeed+20)) )  //this "2" is just safety number
+							temp.setX( temp.getX()-1 );
+						else if ( temp.getY() > y )
+							temp.setY( temp.getY()+1 );
+						else
+							temp.setY( temp.getY()-1 );
+					else
+						if( temp.getBounds().intersectsLine(x+width, y+movementSpeed+20, x+width, y+height-(movementSpeed+20) ))  //same here
+							temp.setX( temp.getX()+1 );
+						else if ( temp.getY() > y )
+							temp.setY( temp.getY()+1 );
+						else
+							temp.setY( temp.getY()-1 ); //collision ends
+				}
 						
 		}
 	}
-	
 	public void checkIfCloseToDestination(){
-		if( goalX - 4 < x+(width/2) && x+(width/2) < goalX + 4 )
-			x+=4;
-
-		
-		if( goalY - 4 < y+(height/2) && y+(height/2) < goalY + 4 ) 
+		if( velX > 0 && goalX <= x+(width/2) )
+			velX = 0;
+		else if( velX < 0 && goalX >= x+(width/2) )
+			velX = 0;
+		if( velY > 0 && goalY <= y+(height/2) )
+			velY = 0;
+		else if( velY < 0 && goalY >= y+(height/2) )
 			velY = 0;
 		
 		
-		if( velX == 0 && velY == 0 ) {
+		if( System.currentTimeMillis() - timeOfLastPosition > 300 ) { //przeciw stuckowaniu
+			lastPositionX = x;
+			lastPositionY = y;
+			timeOfLastPosition = System.currentTimeMillis();
+		}
+		
+		//TODO to jest zalosne rozwiazanie ale dziala
+		if( lastPositionX - x == 0 && lastPositionY - y == 0 ) { //przeciw stuckowaniu
+			stuckCounter++;
+			if( stuckCounter == 10 ) {
+				velX = 0;
+				velY = 0;
+				lastMove = true;
+			}
+			else {
+				moveToGoal();
+			}
+			
+		} //koniec stuckowania
+		
+
+		
+		if( velX == 0 && velY == 0 ) { //lastmove wykonuje sie po przejsciu calej tras i sluzy do dokladnego ustawienia jednostki
 			if( !lastMove ) {
 				move();
+				stuckCounter = 0;
 			}
 			else {
 				moves = false;
+				attackMove = false;
 				lookingForEnemy = true;
 				lastMove = false;
 			}
 		}
 		
+		
+	}
+	
+	public void moveToGoal() {
+		
+		if( x+(width/2) < goalX ) 
+			velX = movementSpeed;
+		else 
+			velX = -movementSpeed;
+		
+		if( y+(height/2) < goalY ) 
+			velY = movementSpeed;
+		else 
+			velY = -movementSpeed;
 	}
 	
 	public void move(){
+		
 		if( !path.isEmpty() ) {
+			lastMove = false;
 			goalX = path.getFirst().x*64+32;
 			goalY = path.getFirst().y*64+32;
 	
@@ -185,15 +272,7 @@ public abstract class GameObject {
 			goalY = goal2Y;
 		}
 			
-			if( x+(width/2) < goalX ) 
-				velX = movementSpeed;
-			else 
-				velX = -movementSpeed;
-			
-			if( y+(height/2) < goalY ) 
-				velY = movementSpeed;
-			else 
-				velY = -movementSpeed;
+			moveToGoal();
 			
 			moves = true;
 
@@ -210,7 +289,7 @@ public abstract class GameObject {
 		
 		for( int i=0; i < handler.size(); i++ ) {
 			tempObject = handler.get(i);
-			if( tempObject.team != this.team && tempObject.id != ID.Terrain ) {
+			if( tempObject.team != this.team && tempObject.id != ID.Terrain && tempObject.id != ID.Minerals ) {
 				distX = (tempObject.x + tempObject.width/2) - (x + width/2);
 				distY = (tempObject.y + tempObject.height/2) - (y + height/2);
 				tempDistance = Math.round( Math.sqrt( distX*distX + distY*distY ));
@@ -225,12 +304,12 @@ public abstract class GameObject {
 			target = object;
 			attacking = true;
 			lookingForEnemy = false;
+			moves = false;
 		}
 	}
 	
 	public boolean checkIfInRange( GameObject target ) {
-		/*if( target == this )
-			return false;*/
+
 		int distX;
 		int distY;
 		long distance = 0;
@@ -243,11 +322,5 @@ public abstract class GameObject {
 			return false;
 	}
 	
-	/*public void attack( GameObject objectToAttack ) {
-		
-		objectToAttack.hp = objectToAttack.hp - attackDMG;
-		System.out.println(objectToAttack.hp);
-		
-	}*/
 	
 }

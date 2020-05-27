@@ -6,14 +6,14 @@ import java.awt.Graphics;
 import Starhammer.Handler;
 import Starhammer.Starhammer;
 
-public class Marine extends GameObject{
+public class Worker extends GameObject {
 
 	Handler handler;
 	
-	public Marine(int x, int y, int team, Handler handler) {
+	public Worker( int x, int y, int team, Handler handler ) {
 		super(x, y, team);
-		
-		this.id = ID.Marine;
+
+		this.id = ID.Worker;
 		this.handler = handler;
 		this.clickable = true;
 		this.moveable = true;
@@ -21,13 +21,13 @@ public class Marine extends GameObject{
 		
 		this.width = 64;
 		this.height = 64;
-		this.hp = 150;
-		this.movementSpeed = 3;
-		this.attackRange = 192; //3*this
-		this.attackDMG = 30;
-		this.attackSpeed = 0.5f;
+		this.hp = 50;
+		this.movementSpeed = 4;
+		this.attackRange = 70; //3*this
+		this.attackDMG = 10;
+		this.attackSpeed = 1f;
 	}
-	
+
 	@Override
 	public void tick() {
 		if( velX != 0 && velY != 0 ) {
@@ -44,13 +44,9 @@ public class Marine extends GameObject{
 		
 		collision( handler );
 
-		
-		
-		
 		if( lookingForEnemy ) {
 			lookForEnemy( handler );
 		}
-		
 		
 		if( attacking ) {
 			velX = 0;
@@ -93,22 +89,22 @@ public class Marine extends GameObject{
 			}
 			checkIfCloseToDestination();
 		}
-			
+		
 	}
-	
+
 	@Override
-	public void render( Graphics g ) {
-		g.setColor(Color.white);
+	public void render(Graphics g) {
+		g.setColor(Color.blue);
 		g.fillRect(x, y, width, height);
 		if( clicked ) {
 			g.setColor(Color.green);
 			g.drawRect(x-1, y-1, width+1, height+1);
 
-			g.fillRect(x+8, y+8, (width-16)*hp/150, 8); //hpbar
+			g.fillRect(x+8, y+8, (width-16)*hp/50, 8); //hpbar
 			g.setColor(Color.red);
-			g.fillRect(x+width-8, y+8, ((width-16)*(hp-150)/150), 8);
+			g.fillRect(x+width-8, y+8, ((width-16)*(hp-50)/50), 8);
+		
 		}
 	}
-	
 
 }
