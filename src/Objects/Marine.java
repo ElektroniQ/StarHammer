@@ -39,8 +39,8 @@ public class Marine extends GameObject{
 			y += this.velY;
 		}
 		
-		x = Starhammer.boarder( x, 0, Starhammer.mapRes );
-		y = Starhammer.boarder( y, 0, Starhammer.mapRes );
+		x = Starhammer.boarder( x, 0, Starhammer.mapRes-width );
+		y = Starhammer.boarder( y, 0, Starhammer.mapRes-height );
 		
 		collision( handler );
 

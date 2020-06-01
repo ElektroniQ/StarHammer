@@ -3,17 +3,17 @@ package Objects;
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class Minerals extends GameObject {
+public class Gold extends GameObject {
 
-	Color color = new Color( 0.1f, 0.5f, 1f, .3f );
+	Color color = new Color( 0.9f, 0.7f, 0.15f, .3f );
 	
-	public Minerals(int x, int y, int team) {
+	public Gold(int x, int y, int team) {
 		super(x, y, team);
 		
-		this.id = ID.Minerals;
+		this.id = ID.Gold;
 		this.width = 64;
 		this.height = 64;
-		this.hp = 1000;
+		this.hp = 200;
 	}
 
 	@Override
@@ -27,5 +27,4 @@ public class Minerals extends GameObject {
 		g.fillRect(x, y, width, height);
 		
 	}
-
 }

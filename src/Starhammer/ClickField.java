@@ -7,8 +7,10 @@ import java.awt.Rectangle;
 public class ClickField {
 	
 	Color color = new Color( 0f, 1f, 1f, .2f );
-	int x,y;
-	int goalX, goalY;
+	Color Nexus = new Color( 0.5f, 0.5f, 0.5f, .3f);
+	private int x,y;
+	private int goalX, goalY;
+	private int buildX, buildY;
 	boolean clicked;
 
 	public ClickField() {
@@ -23,6 +25,13 @@ public class ClickField {
 	public void render(Graphics g) {
 		g.setColor( color );
 		g.fillRect( x, y, goalX-x, goalY-y );
+		
+		if( KeyInput.buildingNexus ) {
+			g.setColor( Nexus );
+			int mapX = (buildX/64)-1;
+			int mapY = (buildY/64)-1;
+			g.drawRect(mapX*64, mapY*64, 192, 192);
+		}
 		
 	}
 
@@ -67,6 +76,16 @@ public class ClickField {
 
 	public void setClicked(boolean clicked) {
 		this.clicked = clicked;
+	}
+
+
+	public void setBuildX(int buildX) {
+		this.buildX = buildX;
+	}
+
+
+	public void setBuildY(int buildY) {
+		this.buildY = buildY;
 	}
 
 

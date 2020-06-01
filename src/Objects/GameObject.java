@@ -5,7 +5,9 @@ import java.awt.Rectangle;
 import java.util.LinkedList;
 
 import Starhammer.Handler;
+import Starhammer.Map;
 import Starhammer.MapVertex;
+import Starhammer.PathFinder;
 
 
 public abstract class GameObject {
@@ -31,10 +33,11 @@ public abstract class GameObject {
   	protected boolean clickable, clicked;
 	protected boolean moves;
 	protected boolean lookingForEnemy;
-	protected boolean attacking;
+	protected boolean attacking, producing;
 	protected boolean attackMove;
 	protected boolean working;
 	protected boolean[] produce;
+	protected boolean build;
 	private boolean lastMove;
 
 	long timeOfLastPosition;
@@ -106,6 +109,15 @@ public abstract class GameObject {
 	public void setHeight(int height) {
 		this.height = height;
 	}
+	
+	public void setTarget(GameObject target) {
+		this.target = target;
+	}
+
+	public void setHp(int hp) {
+		this.hp = hp;
+	}
+
 	public boolean isClickable() {
 		return clickable;
 	}
@@ -125,7 +137,14 @@ public abstract class GameObject {
 	public void setAttackMove(boolean attackMove) {
 		this.attackMove = attackMove;
 	}
-	
+	public boolean isBuild() {
+		return build;
+	}
+
+	public void setBuild(boolean build) {
+		this.build = build;
+	}
+
 	public boolean isMoveable() {
 		return this.moveable;
 	}
@@ -146,6 +165,17 @@ public abstract class GameObject {
 		this.produce[product] = true;
 	}
 	
+	public int getTeam() {
+		return team;
+	}
+
+	public boolean isProducing() {
+		return this.producing;
+	}
+	public void setProducing( boolean isProd ) {
+		this.producing = isProd;
+	}
+	
 	public void setGoal( int x, int y ) {
 		this.goal2X = x;
 		this.goal2Y = y;
@@ -159,7 +189,7 @@ public abstract class GameObject {
 		for( int i=0; i < handler.size(); i++ ) { //collision start
 			GameObject temp = handler.get(i);
 			if( temp.getBounds().intersects( getBounds() ) && this!=temp )
-				if( temp.getID() == ID.Terrain || temp.getID() == ID.Building ) { //|| temp.getID() == ID.Marine )
+				if( temp.getID() == ID.Terrain || temp.getID().isBuilding() ) { //|| temp.getID() == ID.Marine )
 					if( temp.getX() < x )
 						if( temp.getBounds().intersectsLine(x, y+movementSpeed+2, x, y+height-(movementSpeed+2)) )  //this "2" is just safety number
 							x = temp.getX() + temp.getWidth();
@@ -175,10 +205,10 @@ public abstract class GameObject {
 						else
 							y = temp.getY() + temp.getHeight(); //collision ends
 				}
-				else if( temp.getID() == ID.Marine || temp.getID() == ID.Worker ) {
+				else if( temp.getID().isUnit() ) {
 					//TODO do wyjebongowienia
 					if( temp.getX() < x )
-						if( temp.getBounds().intersectsLine(x, y+movementSpeed+20, x, y+height-(movementSpeed+20)) )  //this "2" is just safety number
+						if( temp.getBounds().intersectsLine(x, y+movementSpeed+20, x, y+height-(movementSpeed+20)) )  //this "20" is just safety number
 							temp.setX( temp.getX()-1 );
 						else if ( temp.getY() > y )
 							temp.setY( temp.getY()+1 );
@@ -212,7 +242,7 @@ public abstract class GameObject {
 			timeOfLastPosition = System.currentTimeMillis();
 		}
 		
-		//TODO to jest zalosne rozwiazanie ale dziala
+		//TODO to jest zalosne rozwiazanie ale dziala... tak prawie. Sprobuj rozwiazanie z linia nadjakim myslales
 		if( lastPositionX - x == 0 && lastPositionY - y == 0 ) { //przeciw stuckowaniu
 			stuckCounter++;
 			if( stuckCounter == 10 ) {
@@ -221,6 +251,8 @@ public abstract class GameObject {
 				lastMove = true;
 			}
 			else {
+				x = x+1;
+				y = y+1;
 				moveToGoal();
 			}
 			
@@ -289,7 +321,7 @@ public abstract class GameObject {
 		
 		for( int i=0; i < handler.size(); i++ ) {
 			tempObject = handler.get(i);
-			if( tempObject.team != this.team && tempObject.id != ID.Terrain && tempObject.id != ID.Minerals ) {
+			if( tempObject.team != this.team && ( tempObject.id.isUnit() || tempObject.id.isBuilding() ) ) {
 				distX = (tempObject.x + tempObject.width/2) - (x + width/2);
 				distY = (tempObject.y + tempObject.height/2) - (y + height/2);
 				tempDistance = Math.round( Math.sqrt( distX*distX + distY*distY ));
@@ -320,6 +352,44 @@ public abstract class GameObject {
 			return true;
 		else
 			return false;
+	}
+	
+	public boolean checkIfInRectRange( GameObject object, int range ) {
+		int distX;
+		int distY;
+		distX = (object.x + object.width/2) - (x + width/2);
+		distY = (object.y + object.height/2) - (y + height/2);
+		if( distX <= range && distX >= -range && distY <= range && distY >= -range )
+			return true;
+		else
+			return false;
+		
+	}
+	
+	public LinkedList<MapVertex> lookForClosestNexus( Handler handler, Map map ) {
+		long tempDistance = 0;
+		long distance = 9999;
+		int distX;
+		int distY;
+		GameObject Nexus = this;
+		
+		for( int i=0; i < handler.size(); i++ ) {
+			GameObject tempNexus = handler.get(i);
+			if( tempNexus.id == ID.Nexus && tempNexus.team == this.team ) {
+				distX = (tempNexus.x + tempNexus.width/2) - (x + width/2);
+				distY = (tempNexus.y + tempNexus.height/2) - (y + height/2);
+				tempDistance = Math.round( Math.sqrt( distX*distX + distY*distY ));
+				
+				if( distance > tempDistance ) { 
+					distance = tempDistance;
+					Nexus = tempNexus;
+				}
+			}
+		}
+		if( Nexus != this )
+			return PathFinder.findPath(map, map.mapGrid[ (y+height/2) / 64][ (x+width/2)/64 ], map.mapGrid[ (Nexus.getY()+Nexus.getHeight()/2) / 64 ][ (Nexus.getX()+Nexus.getWidth()/2) / 64 ]);
+		else
+			return null;
 	}
 	
 	

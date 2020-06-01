@@ -14,12 +14,14 @@ public class MouseMotionInput implements MouseMotionListener {
 	private Camera  camera;
 	private Robot robot;
 	private ClickField clickField;
+	private HUD hud;
 	
-	public MouseMotionInput( Handler handl, Camera cam, Robot robot, ClickField clickF ) {
+	public MouseMotionInput( Handler handl, Camera cam, Robot robot, ClickField clickF, HUD hud ) {
 		this.handler = handl;
 		this.camera = cam;
 		this.robot = robot;
 		this.clickField = clickF;
+		this.hud = hud;
 	}
 
 	@Override
@@ -41,6 +43,10 @@ public class MouseMotionInput implements MouseMotionListener {
 		int trueX = e.getXOnScreen();
 		int trueY = e.getYOnScreen();
 		
+		if( KeyInput.buildMode ) {
+			clickField.setBuildX( x - camera.getX() );
+			clickField.setBuildY( y - camera.getY() );
+		}
 		
 		switch (x){
 		case 0:

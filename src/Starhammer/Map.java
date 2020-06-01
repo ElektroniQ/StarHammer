@@ -3,6 +3,7 @@ package Starhammer;
 import java.io.File;
 import java.util.Scanner;
 
+import Objects.Gold;
 import Objects.ID;
 import Objects.Minerals;
 import Objects.Terrain;
@@ -50,6 +51,9 @@ public class Map {
 					break;
 				case Minerals:
 					handler.addObject( new Minerals(j*64, i*64, 0) );
+					break;
+				case Gold:
+					handler.addObject( new Gold(j*64, i*64, 0) );
 					break;
 				default:
 					break;

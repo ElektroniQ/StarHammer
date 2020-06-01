@@ -3,7 +3,9 @@ package Starhammer;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.util.Random;
 
+import Objects.GameObject;
 import Objects.Marine;
 import Objects.Nexus;
 import Objects.Worker;
@@ -14,6 +16,7 @@ public class Menu {
 	Camera camera;
 	Handler handler;
 	Map map;
+	public static Player[] player;
 	
 	public Menu( Camera cam, Handler hand, Map map ) {
 		this.camera = cam;
@@ -44,17 +47,44 @@ public class Menu {
 	}
 	
 	public void startGame() {
-		handler.addObject( new Nexus( 128, 128, 1, handler, map));
-		handler.addObject( new Worker( 300, 400, 1, handler ) );
-		handler.addObject( new Worker( 364, 400, 1, handler ) );
-		handler.addObject( new Worker( 300, 464, 1, handler ) );
-		handler.addObject( new Worker( 364, 464, 1, handler ) );
+		GameObject object;
+		Random rd = new Random();
+		player = new Player[2];
+		int random = (rd.nextInt() % 2); // 0 lub 1
+		//if( random == 0 ) {
+			player[0] = new Player( 1 );
+			player[1] = new Player( 2 );
+		//}
+		//else {
+		//	player[0] = new Player( 2 );
+		//	player[1] = new Player( 1 );
+		//}
+		if( player[0].getTeam() == 1 ) {
+			camera.setX(0);
+			camera.setY(0);
+		}
+		else {
+			camera.setX(-1920);
+			camera.setY(-2300);
+		}
+
+		handler.addObject( object = new Nexus( 128, 128, 1, handler, map));
+		object.setHp(3000);
+		object.setBuild(true);
+		handler.addObject( new Worker( 300, 400, 1, handler, map ) );
+		handler.addObject( new Worker( 364, 400, 1, handler, map ) );
+		handler.addObject( new Worker( 300, 464, 1, handler, map ) );
 		handler.addObject( new Marine( 300, 400, 1, handler ) );
-		handler.addObject( new Marine( 300, 400, 1, handler ) );
-		handler.addObject( new Marine( 300, 400, 1, handler ) );
-		handler.addObject( new Marine( 800, 400, 2, handler ) );
-		handler.addObject( new Marine( 800, 400, 2, handler ) );
-		handler.addObject( new Marine( 800, 400, 2, handler ) );
+
+		
+		handler.addObject( object = new Nexus( 2880, 2880, 2, handler, map ));
+		object.setHp(3000);
+		object.setBuild(true);
+		handler.addObject( new Worker( 2800, 2800, 2, handler, map ) );
+		handler.addObject( new Worker( 2864, 2800, 2, handler, map ) );
+		handler.addObject( new Worker( 2928, 2800, 2, handler, map ) );
+		handler.addObject( new Marine( 2700, 2700, 2, handler ) );
+
 	}
 	
 	public static boolean isOverButtonStart(int x, int y) {

@@ -1,11 +1,15 @@
 package Starhammer;
 
+import java.awt.Point;
 import java.awt.Robot;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.LinkedList;
 
 import Objects.GameObject;
+import Objects.ID;
+import Objects.Nexus;
+
 
 
 
@@ -34,7 +38,7 @@ public class MouseInput implements MouseListener {
 	public void mousePressed(MouseEvent e) {
 		if( Starhammer.gameState == State.Game ) {
 			int x = e.getX() - camera.getX();
-			int y = e.getY() - camera.getY(); 
+			int y = e.getY() - camera.getY();
 	
 			if( e.getButton() == MouseEvent.BUTTON1 ) {
 				clickField.setX( x );
@@ -46,14 +50,23 @@ public class MouseInput implements MouseListener {
 				
 				//to jest czesc odpowiedzialna za attackMove
 				if( x < 0 ) x = 0;
-				else if( x > Starhammer.mapRes ) x = Starhammer.mapRes;  //zapobieganie naciskaniu poza mape
+				else if( x > Starhammer.mapRes ) x = Starhammer.mapRes-1;  //zapobieganie naciskaniu poza mape
 				if( y < 0 ) y = 0;
-				else if ( y > Starhammer.mapRes ) y = Starhammer.mapRes;
+				else if ( y > Starhammer.mapRes ) y = Starhammer.mapRes-1;
 				
 				
 				for( int i=0; i<handler.size(); ++i ) {
 					GameObject object = handler.get(i);
-					if( object.isClicked() && KeyInput.aMove && object.isMoveable() ) {
+					if( KeyInput.buildMode && object.isClicked() && object.getTeam() == Menu.player[0].getTeam() && object.getID() == ID.Worker ) { //budowanie
+						if( KeyInput.buildingNexus && Menu.player[0].getMinerals() >= 1000 ) {
+							handler.addObject( object = new Nexus( (x/64-1)*64, (y/64-1)*64, Menu.player[0].getTeam(), handler, map) );
+							Menu.player[0].addMinerals( -1000 );
+							KeyInput.buildingNexus = false;
+							KeyInput.buildMode = false;
+						}
+					}
+					
+					else if( KeyInput.aMove && object.isClicked() && object.isMoveable() && Menu.player[0].getTeam() == object.getTeam() ) {
 						LinkedList<MapVertex> path;						//ta czesc to polozenie obiektu                                                ,a ta to polozenie kursora
 						path = PathFinder.findPath(map, map.mapGrid[(object.getY()+object.getHeight()/2)/64][( object.getX()+object.getWidth()/2 )/64], map.mapGrid[y/64][x/64]);
 
@@ -67,17 +80,20 @@ public class MouseInput implements MouseListener {
 				}
 				
 			}
+			
+
 			//TODO zrob wyjatki dla naciskania poza mapa, przydaloby sie tez klikanie dla grup
 			else if( e.getButton() == MouseEvent.BUTTON3 ) {
 				
 				if( x < 0 ) x = 0;
-				else if( x > Starhammer.mapRes ) x = Starhammer.mapRes;  //zapobieganie naciskaniu poza mape
+				else if( x > Starhammer.mapRes ) x = Starhammer.mapRes-1;  //zapobieganie naciskaniu poza mape
 				if( y < 0 ) y = 0;
-				else if ( y > Starhammer.mapRes ) y = Starhammer.mapRes;
+				else if ( y > Starhammer.mapRes ) y = Starhammer.mapRes-1;
 				
 				
 				for( int i=0; i<handler.size(); ++i ) {
 					GameObject object = handler.get(i);
+					
 					if( object.isClicked() && object.isMoveable() ) {
 						LinkedList<MapVertex> path;						//ta czesc to polozenie obiektu                                                ,a ta to polozenie kursora
 						path = PathFinder.findPath(map, map.mapGrid[(object.getY()+object.getHeight()/2)/64][( object.getX()+object.getWidth()/2 )/64], map.mapGrid[y/64][x/64]);
@@ -90,17 +106,33 @@ public class MouseInput implements MouseListener {
 					object.move();
 	
 					}
+					
+					else if( object.isClicked() && object.getID().isBuilding() ) {
+						GameObject temp;
+						GameObject newTarget = null;
+						
+						for( int j=0; j<handler.size(); ++j ) {
+							temp = handler.get(j);
+							if( temp.getBounds().contains(x, y) )
+								newTarget = temp;
+						}
+						
+						object.setTarget( newTarget );
+						object.setGoalX( x );
+						object.setGoalY( y );
+					}
 				}
 			}
 			
 		}
+		/**********************************************************************MENU************************************************************************/
 		else if( Starhammer.gameState == State.Menu ) {
 			int x = e.getX();
 			int y = e.getY();
 			
 			if( Menu.isOverButtonStart(x, y) ) { //button start
-				Starhammer.gameState = State.Game;
 				menu.startGame();
+				Starhammer.gameState = State.Game;
 			}
 			if( Menu.isOverButtonEnd(x, y) ) { //button exit
 				System.exit(1);
@@ -124,11 +156,11 @@ public class MouseInput implements MouseListener {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if( e.getButton() == MouseEvent.BUTTON1 && !KeyInput.aMove ) {
+		if( e.getButton() == MouseEvent.BUTTON1 && !KeyInput.aMove && Starhammer.gameState == State.Game ) {
 			for( int j=0; j<handler.size(); ++j ) {
 				GameObject tempObject = handler.get(j);
 						
-				if( tempObject.isClickable() && tempObject.getBounds().intersects( clickField.getBounds() )) {
+				if( tempObject.getTeam() == Menu.player[0].getTeam() && tempObject.isClickable() && tempObject.getBounds().intersects( clickField.getBounds() )) {
 					if( tempObject.isClicked() && e.isShiftDown() )
 						tempObject.setClicked( false );
 					else
@@ -141,13 +173,14 @@ public class MouseInput implements MouseListener {
 				}
 						
 			}
-			clickField.setX( 0 );
-			clickField.setY( 0 );
-			clickField.setGoalX( 0 );
-			clickField.setGoalY( 0 );
-			clickField.setClicked( false );
+
 		}
 		KeyInput.aMove = false;
+		clickField.setX( 0 ); // to teoretycznie powinno byc w ifie ale powstawaly jakeis dziwne anomalie wiec stamtad to zabralem
+		clickField.setY( 0 );
+		clickField.setGoalX( 0 );
+		clickField.setGoalY( 0 );
+		clickField.setClicked( false );
 		//notAttackMoveCommand = true;
 	}
 
@@ -173,7 +206,8 @@ public class MouseInput implements MouseListener {
 			robot.mouseMove(trueX, trueY - y - 1 + Starhammer.trueHEIGHT );
 		//camera end, what a shity code
 	}
-
+	
+	
 	@Override
 	public int hashCode() {
 		return super.hashCode();

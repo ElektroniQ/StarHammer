@@ -2,18 +2,28 @@ package Objects;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.LinkedList;
 
 import Starhammer.Handler;
+import Starhammer.Map;
+import Starhammer.MapVertex;
+import Starhammer.Menu;
+import Starhammer.PathFinder;
 import Starhammer.Starhammer;
 
 public class Worker extends GameObject {
 
 	Handler handler;
+	Map map;
+	int timeToMine;
+	boolean hasResource;
+	boolean hasMinerals;
 	
-	public Worker( int x, int y, int team, Handler handler ) {
+	public Worker( int x, int y, int team, Handler handler, Map map ) {
 		super(x, y, team);
 
 		this.id = ID.Worker;
+		this.map = map;
 		this.handler = handler;
 		this.clickable = true;
 		this.moveable = true;
@@ -26,6 +36,7 @@ public class Worker extends GameObject {
 		this.attackRange = 70; //3*this
 		this.attackDMG = 10;
 		this.attackSpeed = 1f;
+		this.timeToMine = 7;
 	}
 
 	@Override
@@ -39,8 +50,8 @@ public class Worker extends GameObject {
 			y += this.velY;
 		}
 		
-		x = Starhammer.boarder( x, 0, Starhammer.mapRes );
-		y = Starhammer.boarder( y, 0, Starhammer.mapRes );
+		x = Starhammer.boarder( x, 0, Starhammer.mapRes-width );
+		y = Starhammer.boarder( y, 0, Starhammer.mapRes-height );
 		
 		collision( handler );
 
@@ -77,9 +88,51 @@ public class Worker extends GameObject {
 					moves = true;
 				}
 			}
+			
 		}
 		
 		
+		if( !working && !moves && !attacking ) { //rozpoczecie pracy
+			for( int i=0; i < handler.size(); i++ ) {
+				GameObject tempResources = handler.get(i);
+				if( (tempResources.getID() == ID.Minerals || tempResources.getID() == ID.Gold) && tempResources.getX() == ((x+width/2)/64)*64 && tempResources.getY() == ((y+height/2)/64)*64 ) {
+					setTarget( tempResources );
+					if( tempResources.getID() == ID.Minerals )
+						hasMinerals = true;
+					else
+						hasMinerals = false;
+					working = true;
+					lookingForEnemy = false;
+					timeOfStart = System.currentTimeMillis();
+				}
+			}
+		}
+		
+		if( working ) {
+			if( System.currentTimeMillis() - timeOfStart > 1000*timeToMine ) { //procedura zebrania mineralu i znalezienia drogi do nexusa
+				hasResource = true;
+				if( target != null ) {
+					target.hp -= 50;
+					if( target.hp <= 0 ) {
+						handler.removeObject( target );
+						map.mapGrid[target.y/64][target.x/64].id = ID.Void;
+					}
+				}
+				LinkedList<MapVertex> path;
+				path = lookForClosestNexus(handler, map);
+				working = false;
+				
+				if( path != null ) {
+					this.setPath( path );
+					this.setGoal( x+width/2, y+width/2 );
+					this.setAttackMove( false );
+					this.move();
+				}
+				else {
+					lookingForEnemy = true;
+				}
+			}
+		}
 		
 		
 		if( moves ) {
@@ -87,7 +140,36 @@ public class Worker extends GameObject {
 				lookingForEnemy = false;
 				attacking = false;
 			}
+			working = false;
 			checkIfCloseToDestination();
+		}
+		
+		
+		if( hasResource ) { //odnoszenie mineralu do nexusa
+			for( int i=0; i < handler.size(); i++ ) {
+				GameObject tempNexus = handler.get(i);
+				if( tempNexus.getID() == ID.Nexus && tempNexus.getTeam() == team && checkIfInRectRange( tempNexus, 150 )) {
+					
+					hasResource = false;
+					if( Menu.player[0].getTeam() == team )
+						if( hasMinerals )
+							Menu.player[0].addMinerals( 50 );
+						else
+							Menu.player[0].addGold( 25 );
+					else
+						if( hasMinerals )
+							Menu.player[1].addMinerals( 50 );
+						else
+							Menu.player[1].addGold( 25 );
+					
+					LinkedList<MapVertex> path;
+					path = PathFinder.findPath(map, map.mapGrid[ (y+height/2)/64 ][ (x+width/2)/64 ], map.mapGrid[ goal2Y / 64 ][ goal2X / 64]); //goal2Y i 2X jest ustawiane w momencie wywolania this.setGoal
+					this.setPath( path );
+					this.setAttackMove( false );
+					this.move();
+				}
+					
+			}
 		}
 		
 	}
