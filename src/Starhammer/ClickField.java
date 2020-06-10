@@ -6,31 +6,39 @@ import java.awt.Rectangle;
 
 public class ClickField {
 	
-	Color color = new Color( 0f, 1f, 1f, .2f );
-	Color Nexus = new Color( 0.5f, 0.5f, 0.5f, .3f);
+	Color clickFieldColor = new Color( 0f, 1f, 1f, .2f );
+	Color buildingGrid = new Color( 0.5f, 0.5f, 0.5f, .3f);
+	private Menu menu;
 	private int x,y;
 	private int goalX, goalY;
 	private int buildX, buildY;
-	boolean clicked;
+	private boolean clicked;
 
-	public ClickField() {
+	public ClickField( Menu menu ) {
 		this.x = 0;
 		this.y = 0;
 		this.goalX = 0;
 		this.goalY = 0;
+		this.menu = menu;
 
 	}
 
 
 	public void render(Graphics g) {
-		g.setColor( color );
+		g.setColor( clickFieldColor );
 		g.fillRect( x, y, goalX-x, goalY-y );
 		
-		if( KeyInput.buildingNexus ) {
-			g.setColor( Nexus );
+		if( menu.buildingNexus ) {
+			g.setColor( buildingGrid );
 			int mapX = (buildX/64)-1;
 			int mapY = (buildY/64)-1;
 			g.drawRect(mapX*64, mapY*64, 192, 192);
+		}
+		else if( menu.buildingBarracks ) {
+			g.setColor( buildingGrid );
+			int mapX = (buildX/64)-1;
+			int mapY = (buildY/64)-1;
+			g.drawRect(mapX*64, mapY*64, 128, 192);
 		}
 		
 	}

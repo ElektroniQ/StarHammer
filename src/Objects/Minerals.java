@@ -5,7 +5,7 @@ import java.awt.Graphics;
 
 public class Minerals extends GameObject {
 
-	Color color = new Color( 0.1f, 0.5f, 1f, .3f );
+	private Color color = new Color( 0.1f, 0.5f, 1f, .3f );
 	
 	public Minerals(int x, int y, int team) {
 		super(x, y, team);

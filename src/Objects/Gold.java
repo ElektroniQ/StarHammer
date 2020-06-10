@@ -5,7 +5,7 @@ import java.awt.Graphics;
 
 public class Gold extends GameObject {
 
-	Color color = new Color( 0.9f, 0.7f, 0.15f, .3f );
+	private Color color = new Color( 0.8f, 0.8f, 0.2f, .75f );
 	
 	public Gold(int x, int y, int team) {
 		super(x, y, team);

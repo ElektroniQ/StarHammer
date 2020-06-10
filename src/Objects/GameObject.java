@@ -118,6 +118,11 @@ public abstract class GameObject {
 		this.hp = hp;
 	}
 
+	
+	public boolean isAttacking() {
+		return attacking;
+	}
+
 	public boolean isClickable() {
 		return clickable;
 	}
@@ -132,6 +137,14 @@ public abstract class GameObject {
 	}
 	public void setMoves(boolean moves) {
 		this.moves = moves;
+	}
+	
+	public boolean isWorking() {
+		return working;
+	}
+
+	public void setWorking(boolean working) {
+		this.working = working;
 	}
 
 	public void setAttackMove(boolean attackMove) {
@@ -189,7 +202,7 @@ public abstract class GameObject {
 		for( int i=0; i < handler.size(); i++ ) { //collision start
 			GameObject temp = handler.get(i);
 			if( temp.getBounds().intersects( getBounds() ) && this!=temp )
-				if( temp.getID() == ID.Terrain || temp.getID().isBuilding() ) { //|| temp.getID() == ID.Marine )
+				if( temp.getID() == ID.Terrain || temp.getID().isBuilding() ) {
 					if( temp.getX() < x )
 						if( temp.getBounds().intersectsLine(x, y+movementSpeed+2, x, y+height-(movementSpeed+2)) )  //this "2" is just safety number
 							x = temp.getX() + temp.getWidth();
@@ -206,7 +219,6 @@ public abstract class GameObject {
 							y = temp.getY() + temp.getHeight(); //collision ends
 				}
 				else if( temp.getID().isUnit() ) {
-					//TODO do wyjebongowienia
 					if( temp.getX() < x )
 						if( temp.getBounds().intersectsLine(x, y+movementSpeed+20, x, y+height-(movementSpeed+20)) )  //this "20" is just safety number
 							temp.setX( temp.getX()-1 );
@@ -242,7 +254,7 @@ public abstract class GameObject {
 			timeOfLastPosition = System.currentTimeMillis();
 		}
 		
-		//TODO to jest zalosne rozwiazanie ale dziala... tak prawie. Sprobuj rozwiazanie z linia nadjakim myslales
+		//TODO to jest zalosne rozwiazanie ale dziala... tak prawie. Sprobuj rozwiazanie z linia nad jakim myslales
 		if( lastPositionX - x == 0 && lastPositionY - y == 0 ) { //przeciw stuckowaniu
 			stuckCounter++;
 			if( stuckCounter == 10 ) {
@@ -371,7 +383,7 @@ public abstract class GameObject {
 		long distance = 9999;
 		int distX;
 		int distY;
-		GameObject Nexus = this;
+		GameObject nexus = this;
 		
 		for( int i=0; i < handler.size(); i++ ) {
 			GameObject tempNexus = handler.get(i);
@@ -382,12 +394,25 @@ public abstract class GameObject {
 				
 				if( distance > tempDistance ) { 
 					distance = tempDistance;
-					Nexus = tempNexus;
+					nexus = tempNexus;
 				}
 			}
 		}
-		if( Nexus != this )
-			return PathFinder.findPath(map, map.mapGrid[ (y+height/2) / 64][ (x+width/2)/64 ], map.mapGrid[ (Nexus.getY()+Nexus.getHeight()/2) / 64 ][ (Nexus.getX()+Nexus.getWidth()/2) / 64 ]);
+		if( nexus != this )
+			if( x+width/2 > nexus.x+nexus.width/2 )//wiemy ze jestesmy po prawej stronie nexusa
+				if( x+width/2 - (nexus.x+nexus.width/2) > Math.abs(nexus.y+nexus.height/2 - (y+height/2)) )
+					return PathFinder.findPath(map, map.mapGrid[ (y+height/2) / 64][ (x+width/2)/64 ], map.mapGrid[ (nexus.y+nexus.height/2) / 64 ][ (nexus.x+nexus.width+32) / 64 ]); //prawo
+				else if( nexus.y+nexus.height/2 - (y+height/2) > 0 )
+					return PathFinder.findPath(map, map.mapGrid[ (y+height/2) / 64][ (x+width/2)/64 ], map.mapGrid[ (nexus.y-32) / 64 ][ (nexus.x+nexus.width/2) / 64 ]); //gora
+				else
+					return PathFinder.findPath(map, map.mapGrid[ (y+height/2) / 64][ (x+width/2)/64 ], map.mapGrid[ (nexus.y+nexus.height+32) / 64 ][ (nexus.x+nexus.width/2) / 64 ]); //dol
+			else
+				if( nexus.x+nexus.width/2 - (x+width/2) > Math.abs(nexus.y+nexus.height/2 - (y+height/2)) )
+					return PathFinder.findPath(map, map.mapGrid[ (y+height/2) / 64][ (x+width/2)/64 ], map.mapGrid[ (nexus.y+nexus.height/2) / 64 ][ (nexus.x-32) / 64 ]); //lewo
+				else if( nexus.y+nexus.height/2 - (y+height/2) > 0 )
+					return PathFinder.findPath(map, map.mapGrid[ (y+height/2) / 64][ (x+width/2)/64 ], map.mapGrid[ (nexus.y-32) / 64 ][ (nexus.x+nexus.width/2) / 64 ]); //gora
+				else
+					return PathFinder.findPath(map, map.mapGrid[ (y+height/2) / 64][ (x+width/2)/64 ], map.mapGrid[ (nexus.y+nexus.height+32) / 64 ][ (nexus.x+nexus.width/2) / 64 ]); //dol
 		else
 			return null;
 	}

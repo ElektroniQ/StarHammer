@@ -13,18 +13,20 @@ import Starhammer.Starhammer;
 
 public class Worker extends GameObject {
 
-	Handler handler;
-	Map map;
-	int timeToMine;
-	boolean hasResource;
-	boolean hasMinerals;
+	private Handler handler;
+	private Map map;
+	private int timeToMine;
+	private boolean hasResource;
+	private boolean hasMinerals;
+	private Menu menu;
 	
-	public Worker( int x, int y, int team, Handler handler, Map map ) {
+	public Worker( int x, int y, int team, Handler handler, Map map, Menu menu ) {
 		super(x, y, team);
 
 		this.id = ID.Worker;
 		this.map = map;
 		this.handler = handler;
+		this.menu = menu;
 		this.clickable = true;
 		this.moveable = true;
 		this.lookingForEnemy = true;
@@ -145,22 +147,22 @@ public class Worker extends GameObject {
 		}
 		
 		
-		if( hasResource ) { //odnoszenie mineralu do nexusa
+		if( hasResource ) { //odnoszenie materialu do nexusa
 			for( int i=0; i < handler.size(); i++ ) {
 				GameObject tempNexus = handler.get(i);
 				if( tempNexus.getID() == ID.Nexus && tempNexus.getTeam() == team && checkIfInRectRange( tempNexus, 150 )) {
 					
 					hasResource = false;
-					if( Menu.player[0].getTeam() == team )
+					if( menu.player[0].getTeam() == team )
 						if( hasMinerals )
-							Menu.player[0].addMinerals( 50 );
+							menu.player[0].addMinerals( 50 );
 						else
-							Menu.player[0].addGold( 25 );
+							menu.player[0].addGold( 25 );
 					else
 						if( hasMinerals )
-							Menu.player[1].addMinerals( 50 );
+							menu.player[1].addMinerals( 50 );
 						else
-							Menu.player[1].addGold( 25 );
+							menu.player[1].addGold( 25 );
 					
 					LinkedList<MapVertex> path;
 					path = PathFinder.findPath(map, map.mapGrid[ (y+height/2)/64 ][ (x+width/2)/64 ], map.mapGrid[ goal2Y / 64 ][ goal2X / 64]); //goal2Y i 2X jest ustawiane w momencie wywolania this.setGoal

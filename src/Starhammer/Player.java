@@ -6,9 +6,11 @@ public class Player {
 	private int gold;
 	private int supply;
 	private int team;
+	private boolean winner;
 	
 	public Player( int team ) {
 		this.team = team;
+		this.winner = false;
 	}
 
 	public int getMinerals() {
@@ -45,6 +47,15 @@ public class Player {
 	public int getTeam() {
 		return team;
 	}
+
+	public boolean isWinner() {
+		return winner;
+	}
+
+	public void setWinner(boolean won) {
+		this.winner = won;
+	}
+	
 	
 }
 

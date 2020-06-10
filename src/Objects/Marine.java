@@ -8,7 +8,7 @@ import Starhammer.Starhammer;
 
 public class Marine extends GameObject{
 
-	Handler handler;
+	private Handler handler;
 	
 	public Marine(int x, int y, int team, Handler handler) {
 		super(x, y, team);
