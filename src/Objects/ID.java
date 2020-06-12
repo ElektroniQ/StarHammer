@@ -7,7 +7,7 @@ public enum ID {
 	Minerals( 0, 0, 0 ),
 	Gold( 0, 0, 0 ),
 	Nexus( 1, 1000, 0 ),
-	Barracks( 1, 100, 0 ),
+	Barracks( 1, 400, 0 ),
 	Marine( 2, 350, 100 ),
 	Worker( 2, 200, 0 ),
 	Camera( 3, 0, 0 );

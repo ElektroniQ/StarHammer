@@ -1,5 +1,6 @@
 package Starhammer;
 
+import Objects.GameObject;
 
 public class Camera {
 	private int x, y;
@@ -10,8 +11,8 @@ public class Camera {
 	}
 
 	public void tick() {
-		x = Starhammer.boarder( x, -2020, 100 ); //mapa 3200x3200 nie pytajcie dlaczego
-		y = Starhammer.boarder( y, -2580, 100 ); //Starhammer.height - Starhammer.mapRes;
+		x = GameObject.boarder( x, -2020, 100 ); //mapa 3200x3200 nie pytajcie dlaczego
+		y = GameObject.boarder( y, -2580, 100 ); //Starhammer.height - Starhammer.mapRes;
 	}
 	
 	public int getX() {

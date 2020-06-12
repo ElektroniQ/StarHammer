@@ -10,6 +10,7 @@ public class KeyInput extends KeyAdapter {
 	
 	private Handler handler;
 	private Camera camera;
+	@SuppressWarnings("unused")
 	private HUD hud;
 	private Menu menu;
 	

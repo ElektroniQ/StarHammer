@@ -13,7 +13,7 @@ public class Gold extends GameObject {
 		this.id = ID.Gold;
 		this.width = 64;
 		this.height = 64;
-		this.hp = 200;
+		this.hp = 250;
 	}
 
 	@Override

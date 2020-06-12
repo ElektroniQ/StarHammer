@@ -6,9 +6,6 @@ import java.awt.Graphics;
 import java.awt.Robot;
 import java.awt.image.BufferStrategy;
 
-
-
-
 public class Starhammer extends Canvas implements Runnable{
 
 	private static final long serialVersionUID = -5671504739751849190L;
@@ -27,7 +24,6 @@ public class Starhammer extends Canvas implements Runnable{
 	private AI artInt;
 	
 	
-	
 	public Starhammer() {
 		
 		handler = new Handler();
@@ -35,7 +31,7 @@ public class Starhammer extends Canvas implements Runnable{
 		try {
 		robot = new Robot();
 		}
-		catch( Throwable e ) { System.exit(1);}
+		catch( Throwable exce ) { System.exit(1);}
 		
 		map = new Map( handler, "map.txt" );
 		menu = new Menu( camera, handler, map );
@@ -162,19 +158,7 @@ public class Starhammer extends Canvas implements Runnable{
 		g.dispose();
 		bs.show();
 	}
-	
-	public static int boarder( int var, int min, int max ) { //zakaz wychodzenia za plansze
-		if( var >= max ) {
-			var = max;
-			return var = max;
-		}
-		if( var <= min )
-			return var = min;
-		else
-			return var;
-	}
 
-	
 	public static void main(String args[]) {
 		new Starhammer();
 	}

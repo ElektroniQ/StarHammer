@@ -3,7 +3,6 @@ package Starhammer;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.util.Random;
 
 import Objects.GameObject;
 import Objects.Marine;
@@ -62,9 +61,9 @@ public class Menu {
 	
 	public void startGame() {
 		GameObject object;
-		Random rd = new Random();
+		//Random rd = new Random();
 		player = new Player[2];
-		int random = (rd.nextInt() % 2); // 0 lub 1
+		//int random = (rd.nextInt() % 2); // 0 lub 1
 		//if( random == 0 ) {
 			player[0] = new Player( 1 );
 			player[1] = new Player( 2 );

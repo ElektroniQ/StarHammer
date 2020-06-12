@@ -35,6 +35,7 @@ public abstract class GameObject {
 	protected boolean lookingForEnemy;
 	protected boolean attacking, producing;
 	protected boolean attackMove;
+	protected boolean beingAttacked;
 	protected boolean working;
 	protected boolean[] produce;
 	protected boolean build;
@@ -113,16 +114,18 @@ public abstract class GameObject {
 	public void setTarget(GameObject target) {
 		this.target = target;
 	}
-
+	public int getHp() {
+		return hp;
+	}
+	public int getAttackRange() {
+		return attackRange;
+	}
 	public void setHp(int hp) {
 		this.hp = hp;
 	}
-
-	
 	public boolean isAttacking() {
 		return attacking;
 	}
-
 	public boolean isClickable() {
 		return clickable;
 	}
@@ -138,66 +141,59 @@ public abstract class GameObject {
 	public void setMoves(boolean moves) {
 		this.moves = moves;
 	}
-	
 	public boolean isWorking() {
 		return working;
 	}
-
+	public boolean isBeingAttacked() {
+		return beingAttacked;
+	}
 	public void setWorking(boolean working) {
 		this.working = working;
 	}
-
 	public void setAttackMove(boolean attackMove) {
 		this.attackMove = attackMove;
 	}
 	public boolean isBuild() {
 		return build;
 	}
-
 	public void setBuild(boolean build) {
 		this.build = build;
 	}
-
 	public boolean isMoveable() {
 		return this.moveable;
 	}
-	
 	public void setLookingForEnemy(boolean lookingForEnemy) {
 		this.lookingForEnemy = lookingForEnemy;
 	}
-	
 	public void setTimeOfStart( long time ) {
 		this.timeOfStart = time;
 	}
-
 	public void setPath( LinkedList<MapVertex> passedPath ) {
 		this.path = passedPath;
 	}
-	
+	public LinkedList<MapVertex> getPath() {
+		return path;
+	}
 	public void setProduce( int product ) {
 		this.produce[product] = true;
 	}
-	
 	public int getTeam() {
 		return team;
 	}
-
 	public boolean isProducing() {
 		return this.producing;
 	}
 	public void setProducing( boolean isProd ) {
 		this.producing = isProd;
 	}
-	
 	public void setGoal( int x, int y ) {
 		this.goal2X = x;
 		this.goal2Y = y;
 	}
-
 	public Rectangle getBounds() {
 		return new Rectangle( x, y, width, height );
 	}
-	
+
 	public void collision( Handler handler ) {
 		for( int i=0; i < handler.size(); i++ ) { //collision start
 			GameObject temp = handler.get(i);
@@ -387,7 +383,7 @@ public abstract class GameObject {
 		
 		for( int i=0; i < handler.size(); i++ ) {
 			GameObject tempNexus = handler.get(i);
-			if( tempNexus.id == ID.Nexus && tempNexus.team == this.team ) {
+			if( tempNexus.id == ID.Nexus && tempNexus.team == this.team && tempNexus.isBuild() ) {
 				distX = (tempNexus.x + tempNexus.width/2) - (x + width/2);
 				distY = (tempNexus.y + tempNexus.height/2) - (y + height/2);
 				tempDistance = Math.round( Math.sqrt( distX*distX + distY*distY ));
@@ -415,6 +411,17 @@ public abstract class GameObject {
 					return PathFinder.findPath(map, map.mapGrid[ (y+height/2) / 64][ (x+width/2)/64 ], map.mapGrid[ (nexus.y+nexus.height+32) / 64 ][ (nexus.x+nexus.width/2) / 64 ]); //dol
 		else
 			return null;
+	}
+	
+	public static int boarder( int var, int min, int max ) { //zakaz wychodzenia za plansze, ogranicza rowniez camere
+		if( var >= max ) {
+			var = max;
+			return var = max;
+		}
+		if( var <= min )
+			return var = min;
+		else
+			return var;
 	}
 	
 	

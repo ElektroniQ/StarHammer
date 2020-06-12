@@ -49,6 +49,7 @@ public class Handler {
 				menu.player[0].setWinner( true );
 			else
 				menu.player[1].setWinner( true );
+			objectList.clear();
 			menu.setGameState( State.GG );
 		}
 		if( !isThereTeam2 ) {
@@ -56,6 +57,7 @@ public class Handler {
 				menu.player[0].setWinner( true );
 			else
 				menu.player[1].setWinner( true );
+			objectList.clear();
 			menu.setGameState( State.GG );
 		}
 	}

@@ -59,14 +59,18 @@ public class MouseInput implements MouseListener {
 					GameObject object = handler.get(i);
 					if( menu.buildMode && object.isClicked() && object.getTeam() == menu.player[0].getTeam() && object.getID() == ID.Worker ) { //budowanie
 						if( menu.buildingNexus && menu.player[0].getMinerals() >= ID.Nexus.getMineralCost() ) {
-							handler.addObject( object = new Nexus( (x/64-1)*64, (y/64-1)*64, menu.player[0].getTeam(), handler, map, menu) );
-							menu.player[0].addMinerals( -ID.Nexus.getMineralCost() );
+							if( x/64-1 >= 0 && x/64+1 <= 50 && y/64-1 >= 0 && y/64+1 <= 50 ) {
+								handler.addObject( object = new Nexus( (x/64-1)*64, (y/64-1)*64, menu.player[0].getTeam(), handler, map, menu) );
+								menu.player[0].addMinerals( -ID.Nexus.getMineralCost() );
+							}
 							menu.buildingNexus = false;
 							menu.buildMode = false;
 						}
 						else if( menu.buildingBarracks && menu.player[0].getMinerals() >= ID.Barracks.getMineralCost() ) {
-							handler.addObject( object = new Barracks( (x/64-1)*64, (y/64-1)*64, menu.player[0].getTeam(), handler, map) );
-							menu.player[0].addMinerals( -ID.Barracks.getMineralCost() );
+							if( x/64-1 >= 0 && x/64 <= 50 && y/64-1 >= 0 && y/64+1 <= 50 ) {
+								handler.addObject( object = new Barracks( (x/64-1)*64, (y/64-1)*64, menu.player[0].getTeam(), handler, map) );
+								menu.player[0].addMinerals( -ID.Barracks.getMineralCost() );
+							}
 							menu.buildingBarracks = false;
 							menu.buildMode = false;
 						}

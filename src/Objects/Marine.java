@@ -39,13 +39,19 @@ public class Marine extends GameObject{
 			y += this.velY;
 		}
 		
-		x = Starhammer.boarder( x, 0, Starhammer.mapRes-width );
-		y = Starhammer.boarder( y, 0, Starhammer.mapRes-height );
+		x = GameObject.boarder( x, 0, Starhammer.mapRes-width );
+		y = GameObject.boarder( y, 0, Starhammer.mapRes-height );
 		
 		collision( handler );
 
 		
-		
+		if( moves ) {
+			if( !attackMove ) {
+				lookingForEnemy = false;
+				attacking = false;
+			}
+			checkIfCloseToDestination();
+		}
 		
 		if( lookingForEnemy ) {
 			lookForEnemy( handler );
@@ -58,11 +64,12 @@ public class Marine extends GameObject{
 			if( checkIfInRange(target) ){ //niebezpieczenstwo NULLA
 				if( System.currentTimeMillis() - timeOfLastAttack > 1000*attackSpeed ) {
 					target.hp -= attackDMG;
+					target.beingAttacked = true;
 					timeOfLastAttack = System.currentTimeMillis();
 					System.out.println(target.hp);
 					if( target.hp <= 0) {
 						handler.removeObject( target );
-						
+						target = null;
 						attacking = false;
 						lookingForEnemy = true;
 						if( attackMove ) {
@@ -73,6 +80,8 @@ public class Marine extends GameObject{
 				}
 			}
 			else {
+				target.beingAttacked = false;
+				target = null;
 				attacking = false;
 				lookingForEnemy = true;
 				
@@ -81,17 +90,6 @@ public class Marine extends GameObject{
 					moves = true;
 				}
 			}
-		}
-		
-		
-		
-		
-		if( moves ) {
-			if( attackMove == false ) {
-				lookingForEnemy = false;
-				attacking = false;
-			}
-			checkIfCloseToDestination();
 		}
 			
 	}

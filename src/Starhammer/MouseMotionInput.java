@@ -14,6 +14,7 @@ public class MouseMotionInput implements MouseMotionListener {
 	private Camera  camera;
 	private Robot robot;
 	private ClickField clickField;
+	@SuppressWarnings("unused")
 	private HUD hud;
 	private Menu menu;
 	
